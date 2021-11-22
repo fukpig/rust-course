@@ -1,6 +1,6 @@
 pub enum DeviceType {
-    _Socket,
-    _Thermometer,
+    _Socket { name: String, description: String },
+    _Thermometer { name: String, description: String },
 }
 
 enum SocketState {
@@ -69,6 +69,10 @@ impl Room {
     }
 
     pub fn get_devices(&self) -> Vec<DeviceType> {
+        todo!()
+    }
+
+    pub fn get_device(&self, _name: &str) -> DeviceType {
         todo!()
     }
 }
