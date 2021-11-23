@@ -1,11 +1,37 @@
-pub enum DeviceType {
-    _Socket { name: String, description: String },
-    _Thermometer { name: String, description: String },
-}
+use rand::thread_rng;
+use rand::Rng;
 
+pub enum DeviceType {
+    Socket { name: String, description: String },
+    Thermometer { name: String, description: String },
+}
+impl DeviceType {
+    fn get_name(&self) -> String {
+        let name = match &self { 
+            DeviceType::Socket{name,description} => name.to_string(), 
+            DeviceType::Thermometer{name, description} => name.to_string(), 
+            _ => return "not_found".to_string(), 
+        };
+        name
+    }
+    fn get_status(&self) -> String {
+        let name = match &self { 
+            DeviceType::Socket{name,description} => { 
+              //Socket::status()  
+                name.to_string()
+            }, 
+            DeviceType::Thermometer{name, description} => { 
+                //Thermometer::status();
+                name.to_string()
+            }, 
+            _ => return "not_found".to_string(), 
+        };
+        name
+    }
+}
 enum SocketState {
-    _Enabled,
-    _Disabled,
+    Enabled,
+    Disabled,
 }
 
 pub struct AddResult {}
@@ -13,73 +39,103 @@ pub struct AddResult {}
 pub struct RemoveResult {}
 
 pub struct House {
-    _name: String,
-    _rooms: Vec<Room>,
+    name: String,
+    rooms: Vec<Room>,
 }
 
-pub fn create_house(_name: &str) -> House {
-    todo!()
+pub fn create_house(name: &str) -> House {
+    let mut rooms = Vec::<Room>::new();
+    House {
+        name: String::from(name),
+        rooms: rooms,
+    }
 }
+
 impl House {
     pub fn get_name(&self) -> &String {
-        todo!()
+        &self.name
     }
 
-    pub fn add_room(&mut self, _room: Room) -> AddResult {
-        todo!()
+    pub fn add_room(&mut self, room: Room) -> AddResult {
+        self.rooms.push(room);
+        //Ok(true)    
+        AddResult{}
     }
 
-    pub fn remove_room(&mut self, _room_name: &str) -> RemoveResult {
-        todo!()
+    pub fn remove_room(&mut self, room_name: &str) -> RemoveResult {
+        let index = self.rooms.iter().position(|x| *x.get_name() == room_name).unwrap();
+        self.rooms.remove(index);
+        RemoveResult{}
     }
 
-    pub fn get_rooms(&self) -> Vec<Room> {
-        todo!()
+    pub fn get_rooms(&self) -> &Vec<Room> {
+        &self.rooms
     }
 
     pub fn report(&self) {
-        todo!()
+        for r in self.rooms {
+            r.report()
+        }
     }
 
-    pub fn get_device(&self, _name: &str) -> DeviceType {
-        todo!()
+    pub fn get_device(&self, name: &str) -> Option<DeviceType> {
+        for r in self.rooms {
+            let index = r.devices.iter().position(|x| *x.get_name() == name.to_string()).unwrap();
+            return Some(r.devices[index]);
+        }
+        None
     }
 }
 
 pub struct Room {
-    _name: String,
-    _devices: Vec<DeviceType>,
+    name: String,
+    devices: Vec<DeviceType>,
 }
 
-pub fn create_room(_name: &str) -> Room {
-    todo!()
+pub fn create_room(name: &str) -> Room {
+    let mut devices = Vec::<DeviceType>::new();
+    Room {
+        name: String::from(name),
+        devices: devices,
+    }
 }
 
 impl Room {
     pub fn get_name(&self) -> &String {
-        todo!()
+        &self.name
     }
 
-    pub fn add_device<D: DeviceTrait + 'static>(&mut self, _device: D) -> AddResult {
-        todo!()
+    pub fn add_device(&mut self, device: DeviceType) -> AddResult {
+        self.devices.push(device);
+        AddResult{}    
     }
 
-    pub fn remove_device(&mut self, _device_name: &str) -> RemoveResult {
-        todo!()
+    pub fn remove_device(&mut self, device_name: &str) -> RemoveResult {
+        let index = self.devices.iter().position(|x| *x.get_name() == device_name.to_string()).unwrap();
+        self.devices.remove(index);
+        RemoveResult{}
     }
 
-    pub fn get_devices(&self) -> Vec<DeviceType> {
-        todo!()
+    pub fn report(&self){
+        println!("room: {}", self.name);
+        for d in self.devices {
+            println!("{}", d.get_status());
+        }
     }
 
-    pub fn get_device(&self, _name: &str) -> DeviceType {
-        todo!()
+    pub fn get_devices(&self) -> &Vec<DeviceType> {
+        &self.devices
+    }
+
+    pub fn get_device(&self, name: &str) -> DeviceType {
+         let index = self.devices.iter().position(|x| *x.get_name() == name.to_string()).unwrap();
+         return self.devices[index]
     }
 }
 
-pub fn create_socket(_name: &str, _device_type: DeviceType, _description: &str) -> Socket {
+/*pub fn create_socket(name: &str, device_type: DeviceType, description: &str) -> Socket {
     todo!()
-}
+}*/
 
 pub trait DeviceTrait {
     fn status(&self) -> String;
@@ -87,56 +143,72 @@ pub trait DeviceTrait {
 }
 
 pub struct Device {
-    _name: String,
-    _description: String,
-    _device_type: DeviceType,
+    name: String,
+    description: String,
+    device_type: DeviceType,
 }
 
 pub struct Socket {
-    _device: Device,
-    _state: SocketState,
+    device: Device,
+    state: SocketState,
 }
 
 impl Socket {
-    pub fn _interact(&mut self) {
+    pub fn interact(&mut self) {
         todo!()
     }
 
-    fn _get_voltage(&self) -> Option<u16> {
+    fn get_voltage(&self) -> Option<u16> {
         todo!()
     }
 }
-pub fn create_thermometer(
-    _name: &str,
-    _device_type: DeviceType,
-    _description: &str,
+/*pub fn create_thermometer(
+    name: &str,
+    device_type: DeviceType,
+    description: &str,
 ) -> Thermometer {
     todo!()
-}
+}*/
 impl DeviceTrait for Socket {
     fn status(&self) -> String {
-        todo!()
+        let current_state = match self.state {
+            SocketState::Enabled => "enabled",
+            SocketState::Disabled => "disabled",
+        };
+        let voltage = match self.get_voltage() {
+            None => 0,
+            Some(value) => value,
+        };
+        format!(
+            "currente state of {} is: {} and voltage: {}",
+            self.device.name, current_state, voltage
+        )
     }
     fn get_name(&self) -> String {
-        todo!()
+        self.device.name
     }
 }
 
 pub struct Thermometer {
-    _device: Device,
+    device: Device,
 }
 impl Thermometer {
-    fn _get_temp(&self) -> Option<u16> {
-        todo!()
+    fn get_temp(&self) -> Option<u16> {
+        let mut rng = thread_rng();
+        return Some(rng.gen_range(0, 30));
     }
 }
 
 impl DeviceTrait for Thermometer {
     fn status(&self) -> String {
-        todo!()
+        let temp = match self.get_temp() {
+            None => 0,
+            Some(value) => value,
+        };
+        format!("currente state of {} is: {}", self.device.name, temp)
     }
     fn get_name(&self) -> String {
-        todo!()
+        self.device.name
     }
 }
 
