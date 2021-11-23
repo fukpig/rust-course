@@ -1,6 +1,6 @@
 pub enum DeviceType {
-    _Socket { name: String, description: String },
-    _Thermometer { name: String, description: String },
+    _Socket(Socket),
+    _Thermometer(Thermometer),
 }
 
 enum SocketState {
@@ -40,10 +40,6 @@ impl House {
     pub fn report(&self) {
         todo!()
     }
-
-    pub fn get_device(&self, _name: &str) -> DeviceType {
-        todo!()
-    }
 }
 
 pub struct Room {
@@ -77,10 +73,6 @@ impl Room {
     }
 }
 
-pub fn create_socket(_name: &str, _device_type: DeviceType, _description: &str) -> Socket {
-    todo!()
-}
-
 pub trait DeviceTrait {
     fn status(&self) -> String;
     fn get_name(&self) -> String;
@@ -89,7 +81,6 @@ pub trait DeviceTrait {
 pub struct Device {
     _name: String,
     _description: String,
-    _device_type: DeviceType,
 }
 
 pub struct Socket {
@@ -98,6 +89,9 @@ pub struct Socket {
 }
 
 impl Socket {
+    pub fn _new(_name: &str, _description: &str) -> Self {
+        todo!()
+    }
     pub fn _interact(&mut self) {
         todo!()
     }
@@ -105,13 +99,6 @@ impl Socket {
     fn _get_voltage(&self) -> Option<u16> {
         todo!()
     }
-}
-pub fn create_thermometer(
-    _name: &str,
-    _device_type: DeviceType,
-    _description: &str,
-) -> Thermometer {
-    todo!()
 }
 impl DeviceTrait for Socket {
     fn status(&self) -> String {
@@ -126,6 +113,9 @@ pub struct Thermometer {
     _device: Device,
 }
 impl Thermometer {
+    pub fn _new(_name: &str, _description: &str) -> Self {
+        todo!()
+    }
     fn _get_temp(&self) -> Option<u16> {
         todo!()
     }
