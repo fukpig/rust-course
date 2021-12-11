@@ -1,6 +1,6 @@
 use crate::room::Room;
-use crate::smart_house::AddResult;
-use crate::smart_house::RemoveResult;
+//use crate::error::{Error, Result};
+use crate::error::{Result};
 
 pub struct House {
     _name: String,
@@ -16,11 +16,11 @@ impl House {
         todo!()
     }
 
-    pub fn add_room(&mut self, _room: Room) -> AddResult {
+    pub fn add_room(&mut self, _room: Room) -> Result<Room> {
         todo!()
     }
 
-    pub fn remove_room(&mut self, _room_name: &str) -> RemoveResult {
+    pub fn remove_room(&mut self, _room_name: &str) -> Result<bool> {
         todo!()
     }
 
@@ -72,10 +72,10 @@ mod tests {
         //let room = Room{};
         let room = create_room("test");
         let _add_result = test_house.add_room(room);
-        /*match add_result {
+        match _add_result {
             Ok(_) => assert!(true),
             Err(_) => assert!(false),
-        }*/
+        }
     }
     
     #[test]
@@ -89,10 +89,10 @@ mod tests {
             _rooms: rooms
         };
         let _remove_result = test_house.remove_room("test");
-        /*match remove_result {
+        match _remove_result {
             Ok(_) => assert!(true),
             Err(_) => assert!(false),
-        }*/
+        }
     }
     
     #[test]

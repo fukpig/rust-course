@@ -1,6 +1,6 @@
 use crate::devices::DeviceType;
-use crate::smart_house::AddResult;
-use crate::smart_house::RemoveResult;
+//use crate::error::{Error, Result};
+use crate::error::{Result};
 
 pub struct Room {
     _name: String,
@@ -17,11 +17,11 @@ impl Room {
     }
 
     //pub fn add_device<D: DeviceTrait + 'static>(&mut self, _device: D) -> AddResult {
-    pub fn add_device(&mut self, _device: DeviceType) -> AddResult {
+    pub fn add_device(&mut self, _device: DeviceType) -> Result<DeviceType> {
         todo!()
     }
 
-    pub fn remove_device(&mut self, _device_name: &str) -> RemoveResult {
+    pub fn remove_device(&mut self, _device_name: &str) -> Result<bool> {
         todo!()
     }
 
@@ -74,10 +74,10 @@ mod tests {
         let socket = Socket::_new("test", "test");
         let device = DeviceType::_Socket(socket);
         let _add_result = test_room.add_device(device);
-        /*match add_result {
+        match _add_result {
             Ok(_) => assert!(true),
             Err(_) => assert!(false),
-        }*/
+        }
     }
     
     #[test]
@@ -87,10 +87,10 @@ mod tests {
         let device = DeviceType::_Socket(socket);
         room._devices.push(device);
         let _remove_result = room.remove_device("test device");
-        /*match remove_result {
+        match _remove_result {
             Ok(_) => assert!(true),
             Err(_) => assert!(false),
-        }*/
+        }
     }
     
     #[test]
