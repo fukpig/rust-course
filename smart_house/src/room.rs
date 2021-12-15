@@ -21,7 +21,7 @@ impl Room {
         todo!()
     }
 
-    pub fn remove_device(&mut self, _device_name: &str) -> Result<bool> {
+    pub fn remove_device(&mut self, _device_name: &str) -> Result<DeviceType> {
         todo!()
     }
 
@@ -29,7 +29,7 @@ impl Room {
         todo!()
     }
 
-    pub fn get_device(&self, _name: &str) -> DeviceType {
+    pub fn get_device(&self, _name: &str) -> Result<&DeviceType> {
         todo!()
     }
 }

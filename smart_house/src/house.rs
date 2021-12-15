@@ -16,11 +16,11 @@ impl House {
         todo!()
     }
 
-    pub fn add_room(&mut self, _room: Room) -> Result<Room> {
+    pub fn add_room(&mut self, _room: Room) -> Result<&Room> {
         todo!()
     }
 
-    pub fn remove_room(&mut self, _room_name: &str) -> Result<bool> {
+    pub fn remove_room(&mut self, _room_name: &str) -> Result<Room> {
         todo!()
     }
 
