@@ -4,9 +4,10 @@ pub mod thermometer;
 use crate::devices::socket::Socket;
 use crate::devices::thermometer::Thermometer;
 
+#[derive(Clone)]
 pub enum DeviceType {
-    _Socket(Socket),
-    _Thermometer(Thermometer),
+    Socket(Socket),
+    Thermometer(Thermometer),
 }
 
 pub trait DeviceTrait {
@@ -14,7 +15,8 @@ pub trait DeviceTrait {
     fn get_name(&self) -> String;
 }
 
+#[derive(Clone)]
 pub struct Device {
-    _name: String,
-    _description: String,
+    name: String,
+    description: String,
 }

@@ -5,7 +5,6 @@ pub enum Error {
     System(String),
     NotFound(String),
     AlreadyExist(String),
-
     //Io(io::Error), //wait for tcp thermometer
     //Message(serde_json::Error), //wait for tcp connect to thermometer
 }

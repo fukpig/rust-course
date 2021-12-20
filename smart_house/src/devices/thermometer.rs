@@ -1,25 +1,35 @@
-use crate::devices::DeviceTrait;
 use crate::devices::Device;
+use crate::devices::DeviceTrait;
+use rand::thread_rng;
+use rand::Rng;
 
+#[derive(Clone)]
 pub struct Thermometer {
-    _device: Device,
+    pub device: Device,
 }
 
 impl Thermometer {
-    pub fn _new(_name: &str, _description: &str) -> Self {
-        todo!()
+    pub fn new(name: &str, description: &str) -> Self {
+        Thermometer {
+            device: Device {
+                name: name.to_string(),
+                description: description.to_string(),
+            },
+        }
     }
-    fn _get_temp(&self) -> Option<u16> {
-        todo!()
+    fn get_temp(&self) -> Option<u16> {
+        let mut rng = thread_rng();
+        Some(rng.gen_range(1..41))
     }
 }
 
 impl DeviceTrait for Thermometer {
     fn status(&self) -> String {
-        todo!()
+        let temp = self.get_temp().unwrap_or(0);
+        return format!("Thermometer - name:{}, temp: {}", self.get_name(), temp);
     }
     fn get_name(&self) -> String {
-        todo!()
+        self.device.name.clone()
     }
 }
 
@@ -29,35 +39,39 @@ mod tests {
 
     #[test]
     fn test_new_thermometer() {
-        let thermometer = Thermometer::_new("test", "test description");
-        assert_eq!("test".to_string(), thermometer._device._name);
-        assert_eq!("test description".to_string(), thermometer._device._description);
+        let thermometer = Thermometer::new("test", "test description");
+        assert_eq!("test".to_string(), thermometer.device.name);
+        assert_eq!(
+            "test description".to_string(),
+            thermometer.device.description
+        );
     }
 
     #[test]
     fn test_get_temp() {
-        let thermometer = Thermometer::_new("test", "test description");
-        let tempreture = thermometer._get_temp();
+        let thermometer = Thermometer::new("test", "test description");
+        let tempreture = thermometer.get_temp();
         match tempreture {
             Some(_) => assert!(true),
-            None => assert!(false)
+            None => assert!(false),
         }
     }
-    
+
     #[test]
     fn test_get_status() {
-        let thermometer = Thermometer::_new("test", "test description");
+        let thermometer = Thermometer::new("test", "test description");
         let status = thermometer.status();
-        if status.contains("tempreture is ") {
+        if status.contains("Thermometer - name:") && status.contains("temp: ") {
             assert!(true);
+            return;
         }
         assert!(false);
-    }    
-    
+    }
+
     #[test]
     fn test_get_name() {
-        let thermometer = Thermometer::_new("test", "test description");
+        let thermometer = Thermometer::new("test", "test description");
         let name = thermometer.get_name();
         assert_eq!("test".to_string(), name);
-    }    
+    }
 }

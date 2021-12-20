@@ -1,36 +1,73 @@
 use crate::devices::DeviceType;
 //use crate::error::{Error, Result};
-use crate::error::{Result};
+use crate::devices::DeviceTrait;
+use crate::error::Result;
 
+#[derive(Clone)]
 pub struct Room {
-    _name: String,
-    _devices: Vec<DeviceType>,
-}
-
-pub fn create_room(_name: &str) -> Room {
-    todo!()
+    name: String,
+    devices: Vec<DeviceType>,
 }
 
 impl Room {
-    pub fn get_name(&self) -> &String {
-        todo!()
+    pub fn new(name: &str) -> Room {
+        Room {
+            name: name.to_string(),
+            devices: vec![],
+        }
+    }
+    pub fn get_name(&self) -> String {
+        self.name.clone()
     }
 
     //pub fn add_device<D: DeviceTrait + 'static>(&mut self, _device: D) -> AddResult {
-    pub fn add_device(&mut self, _device: DeviceType) -> Result<DeviceType> {
-        todo!()
+    pub fn add_device(&mut self, device: DeviceType) -> Result<&DeviceType> {
+        self.devices.push(device);
+        let recently_added = self.devices.last().unwrap();
+        Ok(recently_added)
     }
 
-    pub fn remove_device(&mut self, _device_name: &str) -> Result<DeviceType> {
-        todo!()
+    pub fn remove_device(&mut self, name: &str) -> Result<DeviceType> {
+        let index = self
+            .devices
+            .iter()
+            .position(|x| {
+                let device_name = match x {
+                    DeviceType::Socket(socket) => socket.get_name(),
+                    DeviceType::Thermometer(thermometer) => thermometer.get_name(),
+                };
+                if device_name == name {
+                    return true;
+                }
+                false
+            })
+            .unwrap();
+        let device = self.devices[index].clone();
+        self.devices.remove(index);
+        Ok(device)
     }
 
     pub fn get_devices(&self) -> Vec<DeviceType> {
-        todo!()
+        self.devices.to_vec()
     }
 
-    pub fn get_device(&self, _name: &str) -> Result<&DeviceType> {
-        todo!()
+    pub fn get_device(&self, name: &str) -> Result<&DeviceType> {
+        let index = self
+            .devices
+            .iter()
+            .position(|x| {
+                let device_name = match x {
+                    DeviceType::Socket(socket) => socket.get_name(),
+                    DeviceType::Thermometer(thermometer) => thermometer.get_name(),
+                };
+                if device_name == name {
+                    return true;
+                }
+                false
+            })
+            .unwrap();
+        let device = &self.devices[index];
+        Ok(device)
     }
 }
 
@@ -43,65 +80,65 @@ mod tests {
     fn test_create_room() {
         let devices = Vec::<DeviceType>::new();
         let test_room = Room {
-            _name: "test room".to_string(),
-            _devices: devices
+            name: "test room".to_string(),
+            devices: devices,
         };
-        let created_room = create_room("test room");
+        let created_room = Room::new("test room");
         //assert_eq!(test_house, created_house); mb PartialEq?
-        
-        assert_eq!(test_room._name, created_room._name);
-        assert_eq!(test_room._devices.len(), created_room._devices.len());
+
+        assert_eq!(test_room.name, created_room.name);
+        assert_eq!(test_room.devices.len(), created_room.devices.len());
     }
 
     #[test]
     fn test_get_room_name() {
         let devices = Vec::<DeviceType>::new();
         let test_room = Room {
-            _name: "test room".to_string(),
-            _devices: devices
+            name: "test room".to_string(),
+            devices: devices,
         };
-        assert_eq!("test_room", test_room.get_name());
+        assert_eq!("test room", test_room.get_name());
     }
-    
+
     #[test]
     fn test_add_device() {
         let devices = Vec::<DeviceType>::new();
         let mut test_room = Room {
-            _name: "test room".to_string(),
-            _devices: devices
+            name: "test room".to_string(),
+            devices: devices,
         };
         //let room = Room{};
-        let socket = Socket::_new("test", "test");
-        let device = DeviceType::_Socket(socket);
-        let _add_result = test_room.add_device(device);
-        match _add_result {
+        let socket = Socket::new("test", "test");
+        let device = DeviceType::Socket(socket);
+        let add_result = test_room.add_device(device);
+        match add_result {
             Ok(_) => assert!(true),
             Err(_) => assert!(false),
         }
     }
-    
+
     #[test]
     fn test_remove_device() {
-        let mut room = create_room("test");
-        let socket = Socket::_new("test", "test");
-        let device = DeviceType::_Socket(socket);
-        room._devices.push(device);
-        let _remove_result = room.remove_device("test device");
-        match _remove_result {
+        let mut room = Room::new("test");
+        let socket = Socket::new("test", "test");
+        let device = DeviceType::Socket(socket);
+        room.devices.push(device);
+        let remove_result = room.remove_device("test");
+        match remove_result {
             Ok(_) => assert!(true),
             Err(_) => assert!(false),
         }
     }
-    
+
     #[test]
     fn test_get_devices() {
         let mut devices = Vec::<DeviceType>::new();
-        let socket = Socket::_new("test", "test");
-        let device = DeviceType::_Socket(socket);
+        let socket = Socket::new("test", "test");
+        let device = DeviceType::Socket(socket);
         devices.push(device);
         let test_room = Room {
-            _name: "test room".to_string(),
-            _devices: devices
+            name: "test room".to_string(),
+            devices: devices,
         };
         let devices = test_room.get_devices();
         assert_eq!(1, devices.len());
