@@ -10,6 +10,15 @@ pub enum DeviceType {
     Thermometer(Thermometer),
 }
 
+impl DeviceType {
+    pub fn get_name(&self) -> String {
+        match self {
+            DeviceType::Socket(d) => d.get_name(),
+            DeviceType::Thermometer(d) => d.get_name(),
+        }
+    }
+}
+
 pub trait DeviceTrait {
     fn status(&self) -> String;
     fn get_name(&self) -> String;

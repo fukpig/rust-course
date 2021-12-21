@@ -1,6 +1,8 @@
 use crate::devices::DeviceType;
 //use crate::error::{Error, Result};
-use crate::devices::DeviceTrait;
+//use crate::devices::DeviceTrait;
+use crate::error::Error::AlreadyExist;
+use crate::error::Error::NotFound;
 use crate::error::Result;
 
 #[derive(Clone)]
@@ -22,26 +24,33 @@ impl Room {
 
     //pub fn add_device<D: DeviceTrait + 'static>(&mut self, _device: D) -> AddResult {
     pub fn add_device(&mut self, device: DeviceType) -> Result<&DeviceType> {
+        let check_index = self.devices.iter().position(|x| {
+            if x.get_name() == device.get_name() {
+                return true;
+            }
+            false
+        });
+        match check_index {
+            Some(_) => return Err(AlreadyExist(device.get_name())),
+            None => {}
+        }
         self.devices.push(device);
         let recently_added = self.devices.last().unwrap();
         Ok(recently_added)
     }
 
     pub fn remove_device(&mut self, name: &str) -> Result<DeviceType> {
-        let index = self
-            .devices
-            .iter()
-            .position(|x| {
-                let device_name = match x {
-                    DeviceType::Socket(socket) => socket.get_name(),
-                    DeviceType::Thermometer(thermometer) => thermometer.get_name(),
-                };
-                if device_name == name {
-                    return true;
-                }
-                false
-            })
-            .unwrap();
+        let check_index = self.devices.iter().position(|x| {
+            //if x.get_name() == name.to_string() {
+            if x.get_name() == *name {
+                return true;
+            }
+            false
+        });
+        let index = match check_index {
+            Some(i) => i,
+            None => return Err(NotFound(name.to_string())),
+        };
         let device = self.devices[index].clone();
         self.devices.remove(index);
         Ok(device)
@@ -52,20 +61,16 @@ impl Room {
     }
 
     pub fn get_device(&self, name: &str) -> Result<&DeviceType> {
-        let index = self
-            .devices
-            .iter()
-            .position(|x| {
-                let device_name = match x {
-                    DeviceType::Socket(socket) => socket.get_name(),
-                    DeviceType::Thermometer(thermometer) => thermometer.get_name(),
-                };
-                if device_name == name {
-                    return true;
-                }
-                false
-            })
-            .unwrap();
+        let check_index = self.devices.iter().position(|x| {
+            if x.get_name() == *name {
+                return true;
+            }
+            false
+        });
+        let index = match check_index {
+            Some(i) => i,
+            None => return Err(NotFound(name.to_string())),
+        };
         let device = &self.devices[index];
         Ok(device)
     }

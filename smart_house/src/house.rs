@@ -1,6 +1,8 @@
 use crate::devices::DeviceType;
 use crate::room::Room;
 //use crate::error::{Error, Result};
+use crate::error::Error::AlreadyExist;
+use crate::error::Error::NotFound;
 use crate::error::Result;
 
 pub struct House {
@@ -21,17 +23,27 @@ impl House {
     }
 
     pub fn add_room(&mut self, room: Room) -> Result<&Room> {
+        println!("ADD ROOM");
+        let check_index = self
+            .rooms
+            .iter()
+            .position(|x| x.get_name() == room.get_name());
+        match check_index {
+            Some(_) => return Err(AlreadyExist(room.get_name())),
+            None => {}
+        }
+        println!("ADD ROOM 2");
         self.rooms.push(room);
         let recently_added = self.rooms.last().unwrap();
         Ok(recently_added)
     }
 
     pub fn remove_room(&mut self, room_name: &str) -> Result<Room> {
-        let index = self
-            .rooms
-            .iter()
-            .position(|x| x.get_name() == room_name)
-            .unwrap();
+        let check_index = self.rooms.iter().position(|x| x.get_name() == room_name);
+        let index = match check_index {
+            Some(i) => i,
+            None => return Err(NotFound(room_name.to_string())),
+        };
         let room = self.rooms[index].clone();
         self.rooms.remove(index);
         Ok(room)
