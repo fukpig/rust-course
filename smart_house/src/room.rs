@@ -56,8 +56,8 @@ impl Room {
         Ok(device)
     }
 
-    pub fn get_devices(&self) -> Vec<DeviceType> {
-        self.devices.to_vec()
+    pub fn get_devices(&self) -> impl Iterator<Item = &DeviceType> {
+        self.devices.iter()
     }
 
     pub fn get_device(&self, name: &str) -> Result<&DeviceType> {
@@ -146,6 +146,6 @@ mod tests {
             devices: devices,
         };
         let devices = test_room.get_devices();
-        assert_eq!(1, devices.len());
+        assert_eq!(1, devices.count());
     }
 }

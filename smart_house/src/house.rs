@@ -23,7 +23,6 @@ impl House {
     }
 
     pub fn add_room(&mut self, room: Room) -> Result<&Room> {
-        println!("ADD ROOM");
         let check_index = self
             .rooms
             .iter()
@@ -32,7 +31,6 @@ impl House {
             Some(_) => return Err(AlreadyExist(room.get_name())),
             None => {}
         }
-        println!("ADD ROOM 2");
         self.rooms.push(room);
         let recently_added = self.rooms.last().unwrap();
         Ok(recently_added)
@@ -49,9 +47,9 @@ impl House {
         Ok(room)
     }
 
-    pub fn get_rooms(&self) -> Vec<Room> {
+    pub fn get_rooms(&self) -> impl Iterator<Item = &Room> {
         //let rooms:Vec<Room> = self.rooms.iter().cloned().collect();
-        self.rooms.to_vec()
+        self.rooms.iter()
     }
 
     pub fn report(&self) {
@@ -139,6 +137,6 @@ mod tests {
             rooms: rooms,
         };
         let rooms = test_house.get_rooms();
-        assert_eq!(1, rooms.len());
+        assert_eq!(1, rooms.count());
     }
 }
