@@ -1,12 +1,17 @@
 use crate::devices::Device;
 use crate::devices::DeviceTrait;
-use rand::thread_rng;
-use rand::Rng;
+use crate::error::Error::Message;
+use crate::error::Result;
+use serde::{Deserialize, Serialize};
+use std::io::{Read, Write};
+use std::net::TcpStream;
+use std::str::from_utf8;
 
 #[derive(Clone)]
 pub struct Socket {
     state: SocketState,
     pub device: Device,
+    pub host: String,
 }
 
 #[derive(PartialEq, Debug, Clone)]
@@ -15,30 +20,111 @@ enum SocketState {
     Disabled,
 }
 
+#[derive(Serialize, Debug)]
+struct Request {
+    action: String,
+}
+
+#[derive(Deserialize, Debug)]
+struct Response {
+    voltage: u16,
+    status: String,
+    error: String,
+}
+
 impl Socket {
-    pub fn new(name: &str, description: &str) -> Self {
+    pub fn new(name: &str, description: &str, host: &str) -> Self {
         Socket {
             device: Device {
                 name: name.to_string(),
                 description: description.to_string(),
             },
+            host: host.to_string(),
             state: SocketState::Disabled,
         }
     }
+
+    fn make_call(&self, req: Request) -> Result<Response> {
+        match TcpStream::connect(&self.host) {
+            Ok(mut stream) => {
+                println!("Successfully connected to server in port {}", &self.host);
+
+                let msg = serde_json::to_string(&req);
+                let msg = match msg {
+                    Ok(m) => m,
+                    Err(e) => return Err(Message(e.to_string())),
+                };
+
+                stream.write_all(msg.as_bytes()).unwrap();
+
+                let mut data = [0u8; 250]; // using 6 byte buffer
+                match stream.read(&mut data) {
+                    Ok(_) => {
+                        let text = from_utf8(&data).unwrap();
+                        let response = serde_json::from_str(text);
+                        let response: Response = match response {
+                            Ok(r) => r,
+                            Err(e) => return Err(Message(e.to_string())),
+                        };
+                        Ok(response)
+                    }
+                    Err(e) => {
+                        println!("Failed to receive data: {}", e);
+                        Err(Message(e.to_string()))
+                    }
+                }
+            }
+            Err(e) => {
+                println!("Failed to connect: {}", e);
+                Err(Message(e.to_string()))
+            }
+        }
+    }
+
     pub fn interact(&mut self) {
-        let new_state = match self.state {
-            SocketState::Enabled => SocketState::Disabled,
-            SocketState::Disabled => SocketState::Enabled,
+        let req = Request {
+            action: "interact".to_string(),
         };
-        self.state = new_state;
+        let result = self.make_call(req);
+        match result {
+            Ok(r) => {
+                if r.error.is_empty() {
+                    let new_state = match self.state {
+                        SocketState::Enabled => SocketState::Disabled,
+                        SocketState::Disabled => SocketState::Enabled,
+                    };
+                    self.state = new_state;
+                }
+            }
+            Err(e) => {
+                println!("Failed to make call: {}", e);
+            }
+        }
     }
 
     fn get_voltage(&self) -> Option<u16> {
         if self.state == SocketState::Disabled {
             return None;
         }
-        let mut rng = thread_rng();
-        Some(rng.gen_range(1..221))
+        let req = Request {
+            action: "get_voltage".to_string(),
+        };
+        let result = self.make_call(req);
+        match result {
+            Ok(r) => {
+                if !r.error.is_empty() {
+                    println!("Voltage: {}", r.voltage);
+                    Some(r.voltage)
+                } else {
+                    println!("Get voltage error: {}", r.error);
+                    None
+                }
+            }
+            Err(e) => {
+                println!("Failed to make call: {}", e);
+                None
+            }
+        }
     }
 }
 

@@ -6,7 +6,7 @@ pub enum Error {
     NotFound(String),
     AlreadyExist(String),
     //Io(io::Error), //wait for tcp thermometer
-    //Message(serde_json::Error), //wait for tcp connect to thermometer
+    Message(String), //wait for tcp connect to thermometer
 }
 
 impl fmt::Display for Error {
@@ -15,8 +15,8 @@ impl fmt::Display for Error {
             Error::System(err) => write!(f, "system error: {}", err),
             Error::NotFound(err) => write!(f, "not Found error: {}", err),
             Error::AlreadyExist(err) => write!(f, "device already exist error: {}", err),
-            /*Error::Io(ref err) => write!(f, "IO error: {}", err),
-            Error::Message(ref err) => write!(f, "Invalid message: {}", err),*/
+            Error::Message(err) => write!(f, "Invalid message: {}", err),
+            //Error::Io(ref err) => write!(f, "IO error: {}", err),
         }
     }
 }
